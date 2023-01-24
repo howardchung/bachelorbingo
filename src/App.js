@@ -74,7 +74,8 @@ function App() {
     setToggles(newToggles);
   }, [setSelected, setToggles]);
   
-  useEffect(resetCard, []);
+  // eslint-disable-next-line
+  useEffect(() => resetCard(), []);
 
   return (
     <div className="App">
@@ -82,7 +83,7 @@ function App() {
       <div className="bingoCard">
         {selected.map((item, i) => {
           if (item === 'ZACH') {
-            return <img src="./zach.jpg" style={{ width: '100%', height: '100%' }} />
+            return <img src="./zach.jpg" alt="The Bachelor" style={{ width: '100%', height: '100%' }} />
           }
           return <div className={toggles[i] ? 'selected cardItem' : 'cardItem'} key={i} onClick={() => toggle(i)}>{item}</div>;
         })}
