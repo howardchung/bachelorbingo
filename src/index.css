@@ -11,3 +11,28 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.bingoCard {
+  display: grid;
+  grid-gap: 5px;
+  grid-auto-flow: column;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+  font-size: 10px;
+  background-color: black;
+  border: 5px solid black;
+}
+
+.cardItem {
+  display: flex;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: white;
+  word-wrap: normal;
+}
+
+.selected {
+  background-color: greenyellow;
+}
