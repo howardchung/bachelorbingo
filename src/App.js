@@ -46,7 +46,6 @@ const items = [
   '"can I steal you", etc.',
   'Bachelor(ette) alum appearance',
   'live animals',
-  'truth / honesty mentioned',
   'making Zach drink something',
   '"open and honest / vulnerable"',
   's#@! talking someone to Zach',
