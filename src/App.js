@@ -21,7 +21,7 @@ function shuffle(array) {
 
 const items = [
   '"right reasons"',
-  'parents are mentioned/shown',
+  'parents are mentioned / shown',
   'kiss',
   'tears',
   'someone is sent home directly',
