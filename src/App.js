@@ -52,9 +52,29 @@ const items = [
 ];
 
 function App() {
-  const [selected, setSelected] =  useState(items);
+  const [selected, setSelected] =  useState([]);
   const [toggles, setToggles] = useState(new Array(25).fill(false));
-  
+
+  const serialize = useCallback(() => {
+    const str = JSON.stringify({ selected, toggles });
+    window.localStorage.setItem('bachelorbingo-state', str);
+  }, [selected, toggles]);
+
+  const deserialize = useCallback(() => {
+    const str = window.localStorage.getItem('bachelorbingo-state');
+    if (str) {
+      try {
+        const obj = JSON.parse(str);
+        setSelected(obj.selected);
+        setToggles(obj.toggles);
+        return true;
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+    return false;
+  }, [setSelected, setToggles]);
+
   const toggle = useCallback((i) => {
     const newToggles = [...toggles];
     newToggles[i] = !toggles[i];
@@ -64,27 +84,39 @@ function App() {
 
   const resetCard = useCallback(() => {
     // Shuffle the list and select 24 items
-    const nSelected = shuffle(items).slice(0, 24);
-    // Put Zach in the middle
-    nSelected.splice(12, 0, 'ZACH');
-    setSelected(nSelected);
+    const newSelected = shuffle(items.map((_item, i) => i)).slice(0, 24);
+    // Put The Bachelor in the middle
+    newSelected.splice(12, 0, -1);
+    setSelected(newSelected);
     const newToggles = new Array(25).fill(false);
     newToggles[12] = true;
     setToggles(newToggles);
   }, [setSelected, setToggles]);
   
-  // eslint-disable-next-line
-  useEffect(() => resetCard(), []);
+  /* eslint-disable */
+  useEffect(() => {
+    const saved = deserialize();
+    if (!saved) {
+      resetCard();
+    }
+  }, []);
+  /* eslint-enable */
+
+  useEffect(() => {
+    if (selected.length) {
+      serialize();
+    }
+  }, [selected, toggles, serialize]);
 
   return (
     <div className="App">
       <h1>Bachelor Bingo</h1> 
       <div className="bingoCard">
-        {selected.map((item, i) => {
-          if (item === 'ZACH') {
+        {selected.map((itemIndex, i) => {
+          if (itemIndex === -1) {
             return <img src="./zach.jpg" alt="The Bachelor" style={{ width: '100%', height: '100%' }} />
           }
-          return <div className={toggles[i] ? 'selected cardItem' : 'cardItem'} key={i} onClick={() => toggle(i)}>{item}</div>;
+          return <div className={toggles[i] ? 'selected cardItem' : 'cardItem'} key={i} onClick={() => toggle(i)}>{items[itemIndex]}</div>;
         })}
       </div>
       <p>
