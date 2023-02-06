@@ -49,6 +49,7 @@ const items = [
   'making Zach drink something',
   '"open and honest / vulnerable"',
   's#@! talking someone to Zach',
+  '"thank you for sharing"',
 ];
 
 function App() {
