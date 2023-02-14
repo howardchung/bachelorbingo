@@ -26,7 +26,7 @@ const items = [
   'tears',
   'someone is sent home directly',
   '"journey / process"',
-  '"falling"',
+  'F word (falling)',
   '"it\'s the final rose"',
   '"best friend"',
   '"future wife"',
@@ -45,11 +45,14 @@ const items = [
   'someone asks Jesse for advice',
   '"can I steal you", etc.',
   'Bachelor(ette) alum appearance',
-  'live animals',
-  'making Zach drink something',
+  'making Zach drink / eat something',
   '"open and honest / vulnerable"',
   's#@! talking someone to Zach',
   '"thank you for sharing"',
+  "L word (in love)",
+  "jump hug",
+  "Zach asks for consent 🤴",
+  "self elimination",
 ];
 
 function App() {
