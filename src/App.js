@@ -55,9 +55,32 @@ const items = [
   "self elimination",
 ];
 
+const GRID_SIZE = 25;
+
+function countBingo(toggles) {
+  // Assume a square number
+  const bingos = [];
+  const side = Math.sqrt(toggles.length);
+  // Check rows
+  for (let i = 0; i < toggles.length; i+=side) {
+    bingos.push([i, i+1, i+2, i+3, i+4]);
+  }
+  // Check columns
+  for (let i = 0; i < side; i++) {
+    bingos.push([i, i + (side * 1), i + (side * 2), i + (side * 3), i + (side * 4)]);
+  }
+  // Check diagonals
+  // 0, 6, 12, 18, 24
+  // 4, 8, 12, 16, 20
+  bingos.push([0, (side+1) * 1, (side+1) * 2, (side+1) * 3, (side+1)* 4]);
+  bingos.push([(side-1) * 1, (side-1) * 2, (side-1) * 3, (side-1) * 4, (side-1) * 5]);
+  return bingos.filter(bingo => bingo.every(i => toggles[i])).length;
+}
+
 function App() {
   const [selected, setSelected] =  useState([]);
-  const [toggles, setToggles] = useState(new Array(25).fill(false));
+  const [toggles, setToggles] = useState(new Array(GRID_SIZE).fill(false));
+  const [showFireworks, setShowFireworks] = useState(false);
 
   const serialize = useCallback(() => {
     const str = JSON.stringify({ selected, toggles });
@@ -84,18 +107,23 @@ function App() {
     newToggles[i] = !toggles[i];
     setToggles(newToggles);
     // console.log(newToggles, i);
+    if (countBingo(newToggles) > countBingo(toggles)) {
+      setShowFireworks(true);
+      setTimeout(() => setShowFireworks(false), 4000); 
+    }
   }, [toggles, setToggles]);
 
   const resetCard = useCallback(() => {
     // Shuffle the list and select 24 items
-    const newSelected = shuffle(items.map((_item, i) => i)).slice(0, 24);
+    const newSelected = shuffle(items.map((_item, i) => i)).slice(0, GRID_SIZE - 1);
     // Put The Bachelor in the middle
-    newSelected.splice(12, 0, -1);
+    newSelected.splice(Math.floor(GRID_SIZE / 2), 0, -1);
     setSelected(newSelected);
-    const newToggles = new Array(25).fill(false);
-    newToggles[12] = true;
+    const newToggles = new Array(GRID_SIZE).fill(false);
+    newToggles[Math.floor(GRID_SIZE / 2)] = true;
     setToggles(newToggles);
-  }, [setSelected, setToggles]);
+    setShowFireworks(false);
+  }, [setSelected, setToggles, setShowFireworks]);
   
   /* eslint-disable */
   useEffect(() => {
@@ -126,6 +154,11 @@ function App() {
       <p>
       <button onClick={resetCard}>New Card</button>
       </p>
+      {showFireworks && <div>
+        <div class="firework"></div>
+        <div class="firework"></div>
+        <div class="firework"></div>
+      </div>}
     </div>
   );
 }
