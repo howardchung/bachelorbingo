@@ -34,7 +34,6 @@ const items = [
   'Zach takes his shirt off',
   'something weird done with food',
   'date ends with a concert',
-  'childhood picture',
   'fireworks',
   'awkward dancing',
   'airplane / helicopter date',
@@ -45,18 +44,18 @@ const items = [
   'someone asks Jesse for advice',
   '"can I steal you", etc.',
   'Bachelor(ette) alum appearance',
-  'making Zach drink / eat something',
   '"open and honest / vulnerable"',
   's#@! talking someone to Zach',
   '"thank you for sharing"',
   "L word (in love)",
   "jump hug",
   "Zach asks for consent 🤴",
-  "self elimination",
+  "self-elimination",
 ];
 
 const GRID_SIZE = 25;
 
+// TODO make this handle any grid size
 function countBingo(toggles) {
   // Assume a square number
   const bingos = [];
