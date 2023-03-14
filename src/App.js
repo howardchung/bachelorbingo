@@ -32,7 +32,6 @@ const items = [
   '"future wife"',
   '"my person"',
   'Zach takes his shirt off',
-  'something weird done with food',
   'date ends with a concert',
   'fireworks',
   'awkward dancing',
@@ -42,15 +41,16 @@ const items = [
   'cocktail party cancelled',
   'someone talks with producers',
   'someone asks Jesse for advice',
-  '"can I steal you", etc.',
   'Bachelor(ette) alum appearance',
   '"open and honest / vulnerable"',
-  's#@! talking someone to Zach',
   '"thank you for sharing"',
   "L word (in love)",
   "jump hug",
   "Zach asks for consent 🤴",
   "self-elimination",
+  "maple syrup is mentioned",
+  "family questions Zach's intentions",
+  "fantasy suites are mentioned",
 ];
 
 const GRID_SIZE = 25;
