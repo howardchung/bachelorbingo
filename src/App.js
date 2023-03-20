@@ -35,10 +35,7 @@ const items = [
   'date ends with a concert',
   'fireworks',
   'awkward dancing',
-  'airplane / helicopter date',
-  'boat date',
   'hot tub',
-  'cocktail party cancelled',
   'someone talks with producers',
   'someone asks Jesse for advice',
   'Bachelor(ette) alum appearance',
@@ -46,11 +43,9 @@ const items = [
   '"thank you for sharing"',
   "L word (in love)",
   "jump hug",
-  "Zach asks for consent 🤴",
   "self-elimination",
-  "maple syrup is mentioned",
-  "family questions Zach's intentions",
   "fantasy suites are mentioned",
+  "Zach has sex 🔥🔥🔥",
 ];
 
 const GRID_SIZE = 25;
