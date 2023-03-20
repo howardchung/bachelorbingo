@@ -54,7 +54,7 @@
 .firework::after {
   overflow: hidden;
   pointer-events: none;
-  --initialSize: 0.5vmin;
+  --initialSize: 0.7vmin;
   --finalSize: 70vmin;
   --particleSize: 0.7vmin;
   --color1: red;
@@ -63,9 +63,9 @@
   --color4: lime;
   --color5: gold;
   --color6: orange;
-  --y: 50vmin;
+  --y: -100vmin;
   --x: -50%;
-  --initialY: 80vmin;
+  --initialY: 0vmin;
   content: "";
   animation: firework 2s infinite;
   position: absolute;

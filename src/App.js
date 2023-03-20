@@ -1,24 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import './App.css';
 
-function shuffle(array) {
-  let currentIndex = array.length,  randomIndex;
-
-  // While there remain elements to shuffle.
-  while (currentIndex !== 0) {
-
-    // Pick a remaining element.
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex], array[currentIndex]];
-  }
-
-  return array;
-}
-
 const items = [
   '"right reasons"',
   'parents are mentioned / shown',
@@ -26,7 +8,7 @@ const items = [
   'tears',
   'someone is sent home directly',
   '"journey / process"',
-  'F word (falling)',
+  'F word (falling in love with you)',
   '"it\'s the final rose"',
   '"best friend"',
   '"future wife"',
@@ -41,11 +23,13 @@ const items = [
   'Bachelor(ette) alum appearance',
   '"open and honest / vulnerable"',
   '"thank you for sharing"',
-  "L word (in love)",
+  "L word (in love with you)",
   "jump hug",
   "self-elimination",
   "fantasy suites are mentioned",
   "Zach has sex 🔥🔥🔥",
+  '"checks (all) the boxes"',
+  "boat date",
 ];
 
 const GRID_SIZE = 25;
@@ -158,3 +142,21 @@ function App() {
 }
 
 export default App;
+
+function shuffle(array) {
+  let currentIndex = array.length,  randomIndex;
+
+  // While there remain elements to shuffle.
+  while (currentIndex !== 0) {
+
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
+}
