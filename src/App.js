@@ -30,7 +30,7 @@ const items = [
   'wearing a white dress',
   'Neil Lane',
   'a proposal',
-  'Zach's family prefers one of the women',
+  'family prefers one of the women',
 ];
 
 const GRID_SIZE = 25;
