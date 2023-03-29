@@ -44,12 +44,19 @@ function App() {
   const [showFireworks, setShowFireworks] = useState(false);
 
   const serialize = useCallback(() => {
+    // TODO serialize which set is being used
     const str = JSON.stringify({ selected: board, toggles });
     window.localStorage.setItem("bachelorbingo-state", str);
   }, [board, toggles]);
 
   const deserialize = useCallback(() => {
     const str = window.localStorage.getItem("bachelorbingo-state");
+    // TODO choose items based on which set was used
+    const items = data.values
+      .map((d) => d[0])
+      .filter(Boolean)
+      .slice(1);
+    setItems(items);
     if (str) {
       try {
         const obj = JSON.parse(str);
@@ -61,7 +68,7 @@ function App() {
       }
     }
     return false;
-  }, [setBoard, setToggles]);
+  }, [setBoard, setToggles, setItems, data]);
 
   const toggle = useCallback(
     (i) => {
@@ -77,6 +84,7 @@ function App() {
     [toggles, setToggles]
   );
 
+  // TODO take a parameter to use a specific set
   const resetCard = useCallback(() => {
     // Shuffle the list and select 24 items
     const newSelected = shuffle(items.map((_item, i) => i)).slice(
@@ -107,12 +115,6 @@ function App() {
     if (!data) {
       return;
     }
-    // TODO choose items based on which set was used
-    const items = data.values
-      .map((d) => d[0])
-      .filter(Boolean)
-      .slice(1);
-    setItems(items);
     const saved = deserialize();
     if (!saved) {
       resetCard();
@@ -122,7 +124,6 @@ function App() {
 
   useEffect(() => {
     if (board.length) {
-      // TODO serialize which set is being used
       serialize();
     }
   }, [board, toggles, serialize]);
