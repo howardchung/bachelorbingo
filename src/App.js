@@ -135,6 +135,7 @@ function App() {
           if (itemIndex === -1) {
             return (
               <img
+                key={itemIndex}
                 src="./zach.jpg"
                 alt="The Bachelor"
                 style={{ width: "100%", height: "100%" }}
