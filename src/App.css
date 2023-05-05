@@ -55,8 +55,8 @@
   overflow: hidden;
   pointer-events: none;
   --initialSize: 0.7vmin;
-  --finalSize: 70vmin;
-  --particleSize: 0.7vmin;
+  --finalSize: 80vmin;
+  --particleSize: 1vmin;
   --color1: red;
   --color2: blue;
   --color3: purple;

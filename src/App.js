@@ -86,6 +86,7 @@ function App() {
 
   const resetCard = useCallback(
     (index) => {
+      console.log("resetCard");
       const items = data.values
         .filter((d) => d[index + 1] === "Y")
         .map((d) => d[0]);
@@ -124,8 +125,9 @@ function App() {
       return;
     }
     const saved = deserialize();
+    console.log(saved);
     if (!saved) {
-      resetCard();
+      resetCard(0);
     }
   }, [data]);
   /* eslint-enable */
@@ -138,15 +140,15 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Bachelor Bingo</h1>
+      <h1>Bachelor(ette) Bingo</h1>
       <div className="bingoCard">
         {board.map((itemIndex, i) => {
           if (itemIndex === -1) {
             return (
               <img
                 key={itemIndex}
-                src="./zach.jpg"
-                alt="The Bachelor"
+                src="./jesse.jpg"
+                alt="The Bachelor(ette)"
                 style={{ width: "100%", height: "100%" }}
               />
             );
