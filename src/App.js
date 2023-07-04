@@ -59,7 +59,7 @@ function App() {
         setToggles(obj.toggles);
         setIndex(obj.index);
         const items = data.values
-          .filter((d) => d[index + 1] === "Y") // Premiere
+          .filter((d) => d[obj.index + 1] === "Y") // Premiere
           .map((d) => d[0]);
         setItems(items);
         return true;
@@ -174,14 +174,16 @@ function App() {
         }}
       >
         {sets.map((set, i) => (
-          <button onClick={() => resetCard(i)}>{set}</button>
+          <button key={set} onClick={() => resetCard(i)}>
+            {set}
+          </button>
         ))}
       </div>
       {showFireworks && (
         <div>
-          <div class="firework"></div>
-          <div class="firework"></div>
-          <div class="firework"></div>
+          <div className="firework"></div>
+          <div className="firework"></div>
+          <div className="firework"></div>
         </div>
       )}
     </div>
