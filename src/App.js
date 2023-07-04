@@ -68,7 +68,7 @@ function App() {
       }
     }
     return false;
-  }, [setBoard, setToggles, setItems, index, setIndex, data]);
+  }, [setBoard, setToggles, setItems, setIndex, data]);
 
   const toggle = useCallback(
     (i) => {
