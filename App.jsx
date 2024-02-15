@@ -59,7 +59,7 @@ function App() {
         setToggles(obj.toggles);
         setIndex(obj.index);
         const items = data.values
-          .filter((d) => d[obj.index + 1] === "Y") // Premiere
+          .filter((d) => Number(d[obj.index + 1])) // Premiere
           .map((d) => d[0]);
         setItems(items);
         return true;
@@ -88,7 +88,7 @@ function App() {
     (index) => {
       console.log("resetCard");
       const items = data.values
-        .filter((d) => d[index + 1] === "Y")
+        .filter((d) => Number(d[index + 1]))
         .map((d) => d[0]);
       setItems(items);
       setIndex(index);
@@ -174,7 +174,11 @@ function App() {
         }}
       >
         {sets.map((set, i) => (
-          <button key={set} onClick={() => resetCard(i)}>
+          <button key={set} onClick={() => {
+            if (confirm("Do you really want to reset?")) {
+              resetCard(i);
+            }
+          }}>
             {set}
           </button>
         ))}

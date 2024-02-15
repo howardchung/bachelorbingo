@@ -8,7 +8,7 @@
     "vite": "^4.5.0"
   },
   "scripts": {
-    "dev": "vite --host",
+    "start": "vite --host",
     "build": "vite build",
     "preview": "vite preview"
   },
