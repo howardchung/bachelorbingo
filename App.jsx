@@ -36,6 +36,17 @@ function countBingo(toggles) {
   return bingos.filter((bingo) => bingo.every((i) => toggles[i])).length;
 }
 
+async function getWakeLock() {
+  try {
+    const wakeLock = await navigator.wakeLock.request("screen");
+    console.log(wakeLock);
+  } catch (err) {
+    // the wake lock request fails - usually system related, such being low on battery
+    console.log(`${err.name}, ${err.message}`);
+  }
+}
+getWakeLock();
+
 function App() {
   const [data, setData] = useState(null);
   const [items, setItems] = useState([]);
