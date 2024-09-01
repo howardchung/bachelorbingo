@@ -85,6 +85,7 @@ function App() {
     (i) => {
       const newToggles = [...toggles];
       newToggles[i] = !toggles[i];
+      navigator.vibrate(200);
       setToggles(newToggles);
       // console.log(newToggles, i);
       if (countBingo(newToggles) > countBingo(toggles)) {
