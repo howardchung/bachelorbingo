@@ -2,14 +2,19 @@
   "name": "bachelorbingo",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
   "scripts": {
     "start": "vite --host",
     "build": "vite build",
     "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.3.7",
+    "vite": "^7.2.7"
   },
   "browserslist": {
     "production": [
@@ -22,10 +27,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@types/react": "^18.3.27",
-    "@types/react-dom": "^18.3.7",
-    "vite": "^7.2.7"
   }
 }
