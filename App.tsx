@@ -4,7 +4,7 @@ import "./App.css";
 const GRID_SIZE = 25;
 
 // TODO make this handle any grid size
-function countBingo(toggles) {
+function countBingo(toggles: boolean[]) {
   // Assume a square number
   const bingos = [];
   const side = Math.sqrt(toggles.length);
@@ -40,7 +40,7 @@ async function getWakeLock() {
   try {
     const wakeLock = await navigator.wakeLock.request("screen");
     console.log(wakeLock);
-  } catch (err) {
+  } catch (err: any) {
     // the wake lock request fails - usually system related, such being low on battery
     console.log(`${err.name}, ${err.message}`);
   }
@@ -48,9 +48,9 @@ async function getWakeLock() {
 getWakeLock();
 
 function App() {
-  const [data, setData] = useState(null);
-  const [items, setItems] = useState([]);
-  const [board, setBoard] = useState([]);
+  const [data, setData] = useState<{ values: any[]} | null>(null);
+  const [items, setItems] = useState<any[]>([]);
+  const [board, setBoard] = useState<any[]>([]);
   const [sets, setSets] = useState([]);
   const [index, setIndex] = useState(0);
   const [toggles, setToggles] = useState(new Array(GRID_SIZE).fill(false));
@@ -69,9 +69,9 @@ function App() {
         setBoard(obj.selected);
         setToggles(obj.toggles);
         setIndex(obj.index);
-        const items = data.values
+        const items = data?.values
           .filter((d) => Number(d[obj.index + 1])) // Premiere
-          .map((d) => d[0]);
+          .map((d) => d[0]) ?? [];
         setItems(items);
         return true;
       } catch (e) {
@@ -82,7 +82,7 @@ function App() {
   }, [setBoard, setToggles, setItems, setIndex, data]);
 
   const toggle = useCallback(
-    (i) => {
+    (i: number) => {
       const newToggles = [...toggles];
       newToggles[i] = !toggles[i];
       navigator.vibrate(100);
@@ -97,11 +97,11 @@ function App() {
   );
 
   const resetCard = useCallback(
-    (index) => {
+    (index: number) => {
       console.log("resetCard");
-      const items = data.values
+      const items = data?.values
         .filter((d) => Number(d[index + 1]))
-        .map((d) => d[0]);
+        .map((d) => d[0]) ?? [];
       setItems(items);
       setIndex(index);
       // Shuffle the list and select 24 items
@@ -208,7 +208,7 @@ function App() {
 
 export default App;
 
-function shuffle(array) {
+function shuffle(array: any[]) {
   let currentIndex = array.length,
     randomIndex;
 
