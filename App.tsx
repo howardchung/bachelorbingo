@@ -124,7 +124,7 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       const resp = await fetch(
-        "https://sheets.googleapis.com/v4/spreadsheets/1-B1WtsDnlxpx72KJmqmjKtSxqfVAP37AeB-tIFWU8-o/values/Sheet1?key=AIzaSyDAHivgQUlxM9FKaTYuzfKpOKgf0f9hpXI"
+        "https://googlesheet.howardzchung.workers.dev/?url=https://sheets.googleapis.com/v4/spreadsheets/1-B1WtsDnlxpx72KJmqmjKtSxqfVAP37AeB-tIFWU8-o/values/Sheet1"
       );
       const data = await resp.json();
       setData(data);
