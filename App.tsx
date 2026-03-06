@@ -180,11 +180,10 @@ function App() {
       </div>
       <div
         style={{
-          display: "grid",
+          display: "flex",
           gap: "4px",
           marginTop: "12px",
-          gridAutoFlow: "column",
-          gridAutoColumns: "1fr",
+          flexWrap: "wrap",
         }}
       >
         {sets.map((set, i) => (
