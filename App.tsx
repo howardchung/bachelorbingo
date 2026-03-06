@@ -85,12 +85,14 @@ function App() {
     (i: number) => {
       const newToggles = [...toggles];
       newToggles[i] = !toggles[i];
-      navigator.vibrate(100);
       setToggles(newToggles);
       // console.log(newToggles, i);
       if (countBingo(newToggles) > countBingo(toggles)) {
         setShowFireworks(true);
         setTimeout(() => setShowFireworks(false), 4000);
+      }
+      if (navigator.vibrate) {
+        navigator.vibrate(100);
       }
     },
     [toggles, setToggles]
