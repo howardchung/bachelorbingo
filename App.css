@@ -1,200 +1,186 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+:root {
+  --bg: #1d0b16;
+  --bg-2: #2e1223;
+  --card: #fff7f2;
+  --ink: #3a1a2b;
+  --rose: #d6456b;
+  --rose-deep: #a3264b;
+  --gold: #e8b86a;
+  --muted: #c9a3b3;
+  --gap: clamp(4px, 1.2vw, 8px);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  color: #fff;
+  background: radial-gradient(120% 80% at 50% 0%, var(--bg-2), var(--bg));
+  background-attachment: fixed;
+  font-family: "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: contain;
 }
 
 .App {
-  text-align: center;
+  width: min(100%, 560px);
+  margin: 0 auto;
+  padding: max(12px, env(safe-area-inset-top)) clamp(8px, 3vw, 16px)
+    max(20px, env(safe-area-inset-bottom));
 }
+
+.header { text-align: center; margin-bottom: 12px; }
+
+h1 {
+  margin: 4px 0 2px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 7vw, 2.2rem);
+  letter-spacing: 0.01em;
+  color: var(--gold);
+}
+
+.count { margin: 0; font-size: 0.9rem; color: var(--muted); min-height: 1.3em; }
 
 .bingoCard {
   display: grid;
-  grid-gap: 5px;
-  grid-auto-flow: column;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
-  font-size: 12px;
-  background-color: black;
-  border: 5px solid black;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--gap);
+  padding: var(--gap);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(232, 184, 106, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
 .cardItem {
+  appearance: none;
+  position: relative;
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  padding: 3px;
   display: flex;
-  cursor: pointer;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   text-align: center;
-  background-color: white;
-  word-wrap: normal;
+  font: inherit;
+  font-size: clamp(0.56rem, 2.6vw, 0.82rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--ink);
+  background: var(--card);
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.12s ease, background 0.15s ease, color 0.15s ease;
 }
 
-.selected {
-  background-color: greenyellow;
+.cardItem span { display: block; max-height: 100%; overflow: hidden; }
+.cardItem:active { transform: scale(0.94); }
+.cardItem:focus-visible,
+.sets button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+.cardItem.selected {
+  color: #fff;
+  background: linear-gradient(145deg, var(--rose), var(--rose-deep));
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+.cardItem.selected::after {
+  content: "♥";
+  position: absolute;
+  top: 2px; right: 4px;
+  font-size: 0.7em;
+  opacity: 0.8;
 }
 
-@keyframes firework {
-  0% {
-    transform: translate(var(--x), var(--initialY));
-    width: var(--initialSize);
-    opacity: 1;
-  }
-  50% {
-    width: 0.5vmin;
-    opacity: 1;
-  }
-  100% {
-    width: var(--finalSize);
-    opacity: 0;
-  }
+.cardItem.free { padding: 0; cursor: default; background: var(--gold); }
+.cardItem.free::after { content: none; }
+.cardItem.free img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cardItem.empty { visibility: hidden; }
+
+.sets { margin-top: 18px; text-align: center; }
+.setsLabel { margin: 0 0 8px; font-size: 0.8rem; color: var(--muted); }
+.setsList { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+
+.sets button, .notice button {
+  min-height: 44px;
+  padding: 0 16px;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  background: transparent;
+  border: 1.5px solid rgba(232, 184, 106, 0.55);
+  border-radius: 999px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.15s ease;
+}
+.sets button:hover, .notice button:hover { background: rgba(232, 184, 106, 0.15); }
+.sets button.active { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+
+.notice { text-align: center; color: var(--muted); padding: 24px 0; }
+.notice p { margin: 0 0 12px; }
+
+/* Celebration */
+.fireworks { position: fixed; inset: 0; pointer-events: none; z-index: 10; overflow: hidden; }
+
+.bingoBanner {
+  position: absolute;
+  top: 38%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: Georgia, serif;
+  font-size: clamp(3rem, 16vw, 6rem);
+  font-weight: 700;
+  color: var(--gold);
+  text-shadow: 0 4px 24px rgba(214, 69, 107, 0.9);
+  animation: pop 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes pop {
+  from { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
+  to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 
-/* @keyframes fireworkPseudo {
-    0% { transform: translate(-50%, -50%); width: var(--initialSize); opacity: 1; }
-    50% { width: 0.5vmin; opacity: 1; }
-    100% { width: var(--finalSize); opacity: 0; }
-  }
-   */
 .firework,
 .firework::before,
 .firework::after {
-  overflow: hidden;
-  pointer-events: none;
-  --initialSize: 0.7vmin;
-  --finalSize: 80vmin;
-  --particleSize: 1vmin;
-  --color1: red;
-  --color2: blue;
-  --color3: purple;
-  --color4: lime;
-  --color5: gold;
-  --color6: orange;
-  --y: -100vmin;
-  --x: -50%;
-  --initialY: 0vmin;
-  content: "";
-  animation: firework 2s infinite;
+  --w: 4px;
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, var(--y));
-  width: var(--initialSize);
-  aspect-ratio: 1;
-  background: 
-      /*
-      radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 0% 0%,
-      radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 100% 0%,
-      radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 100% 100%,
-      radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 0% 100%,
-      */ radial-gradient(
-        circle,
-        var(--color1) var(--particleSize),
-        #0000 0
-      )
-      50% 0%,
-    radial-gradient(circle, var(--color2) var(--particleSize), #0000 0) 100% 50%,
-    radial-gradient(circle, var(--color3) var(--particleSize), #0000 0) 50% 100%,
-    radial-gradient(circle, var(--color4) var(--particleSize), #0000 0) 0% 50%,
-    /* bottom right */
-      radial-gradient(circle, var(--color5) var(--particleSize), #0000 0) 80%
-      90%,
-    radial-gradient(circle, var(--color6) var(--particleSize), #0000 0) 95% 90%,
-    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 90% 70%,
-    radial-gradient(circle, var(--color2) var(--particleSize), #0000 0) 100% 60%,
-    radial-gradient(circle, var(--color3) var(--particleSize), #0000 0) 55% 80%,
-    radial-gradient(circle, var(--color4) var(--particleSize), #0000 0) 70% 77%,
-    /* bottom left */
-      radial-gradient(circle, var(--color5) var(--particleSize), #0000 0) 22%
-      90%,
-    radial-gradient(circle, var(--color6) var(--particleSize), #0000 0) 45% 90%,
-    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 33% 70%,
-    radial-gradient(circle, var(--color2) var(--particleSize), #0000 0) 10% 60%,
-    radial-gradient(circle, var(--color3) var(--particleSize), #0000 0) 31% 80%,
-    radial-gradient(circle, var(--color4) var(--particleSize), #0000 0) 28% 77%,
-    radial-gradient(circle, var(--color5) var(--particleSize), #0000 0) 13% 72%,
-    /* top left */
-      radial-gradient(circle, var(--color6) var(--particleSize), #0000 0) 80%
-      10%,
-    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 95% 14%,
-    radial-gradient(circle, var(--color2) var(--particleSize), #0000 0) 90% 23%,
-    radial-gradient(circle, var(--color3) var(--particleSize), #0000 0) 100% 43%,
-    radial-gradient(circle, var(--color4) var(--particleSize), #0000 0) 85% 27%,
-    radial-gradient(circle, var(--color5) var(--particleSize), #0000 0) 77% 37%,
-    radial-gradient(circle, var(--color6) var(--particleSize), #0000 0) 60% 7%,
-    /* top right */
-      radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 22%
-      14%,
-    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 45% 20%,
-    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 33% 34%,
-    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 10% 29%,
-    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 31% 37%,
-    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 28% 7%,
-    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 13% 42%;
-  background-size: var(--initialSize) var(--initialSize);
-  background-repeat: no-repeat;
+  top: 50%; left: 50%;
+  width: var(--w); height: var(--w);
+  border-radius: 50%;
+  content: "";
+  animation: burst 1.2s ease-out infinite;
+  box-shadow:
+    0 -60px 0 var(--gold), 42px -42px 0 var(--rose), 60px 0 0 var(--gold),
+    42px 42px 0 var(--rose), 0 60px 0 var(--gold), -42px 42px 0 var(--rose),
+    -60px 0 0 var(--gold), -42px -42px 0 var(--rose);
+}
+.firework:nth-child(1) { top: 28%; left: 25%; }
+.firework:nth-child(2) { top: 22%; left: 75%; animation-delay: 0.4s; }
+.firework:nth-child(3) { top: 60%; left: 50%; animation-delay: 0.8s; }
+.firework::before { transform: scale(0.6) rotate(22deg); }
+.firework::after { transform: scale(1.4) rotate(-22deg); opacity: 0.6; }
+@keyframes burst {
+  from { transform: scale(0.1); opacity: 1; }
+  to { transform: scale(1.2); opacity: 0; }
 }
 
-.firework::before {
-  --x: -50%;
-  --y: -50%;
-  --initialY: -50%;
-  /*   transform: translate(-20vmin, -2vmin) rotate(40deg) scale(1.3) rotateY(40deg); */
-  transform: translate(-50%, -50%) rotate(40deg) scale(1.3) rotateY(40deg);
-  /*   animation: fireworkPseudo 2s infinite; */
+@media (prefers-reduced-motion: reduce) {
+  .cardItem, .bingoBanner, .firework, .firework::before, .firework::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
-.firework::after {
-  --x: -50%;
-  --y: -50%;
-  --initialY: -50%;
-  /*   transform: translate(44vmin, -50%) rotate(170deg) scale(1.15) rotateY(-30deg); */
-  transform: translate(-50%, -50%) rotate(170deg) scale(1.15) rotateY(-30deg);
-  /*   animation: fireworkPseudo 2s infinite; */
-}
-
-.firework:nth-child(2) {
-  --x: 30vmin;
-}
-
-.firework:nth-child(2),
-.firework:nth-child(2)::before,
-.firework:nth-child(2)::after {
-  --color1: pink;
-  --color2: violet;
-  --color3: fuchsia;
-  --color4: orchid;
-  --color5: plum;
-  --color6: lavender;
-  --finalSize: 40vmin;
-  left: 30%;
-  top: 60%;
-  animation-delay: -0.25s;
-}
-
-.firework:nth-child(3) {
-  --x: -30vmin;
-  --y: -50vmin;
-}
-
-.firework:nth-child(3),
-.firework:nth-child(3)::before,
-.firework:nth-child(3)::after {
-  --color1: cyan;
-  --color2: lightcyan;
-  --color3: lightblue;
-  --color4: PaleTurquoise;
-  --color5: SkyBlue;
-  --color6: lavender;
-  --finalSize: 35vmin;
-  left: 70%;
-  top: 60%;
-  animation-delay: -0.4s;
+@media (min-width: 600px) {
+  .cardItem { font-size: 0.9rem; padding: 6px; }
 }

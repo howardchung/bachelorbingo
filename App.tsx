@@ -1,206 +1,257 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 
 const GRID_SIZE = 25;
+const CENTER = Math.floor(GRID_SIZE / 2);
+const STORAGE_KEY = "bachelorbingo-state";
+const SHEET_URL =
+  "https://googlesheet.howardzchung.workers.dev/?url=https://sheets.googleapis.com/v4/spreadsheets/1-B1WtsDnlxpx72KJmqmjKtSxqfVAP37AeB-tIFWU8-o/values/Sheet1";
 
-// TODO make this handle any grid size
+// FIX: previously hard-coded to 5 squares per line; now works for any square grid
 function countBingo(toggles: boolean[]) {
-  // Assume a square number
-  const bingos = [];
-  const side = Math.sqrt(toggles.length);
-  // Check rows
-  for (let i = 0; i < toggles.length; i += side) {
-    bingos.push([i, i + 1, i + 2, i + 3, i + 4]);
+  const side = Math.round(Math.sqrt(toggles.length));
+  const lines: number[][] = [];
+  for (let r = 0; r < side; r++) {
+    lines.push(Array.from({ length: side }, (_, c) => r * side + c));
   }
-  // Check columns
-  for (let i = 0; i < side; i++) {
-    bingos.push([i, i + side * 1, i + side * 2, i + side * 3, i + side * 4]);
+  for (let c = 0; c < side; c++) {
+    lines.push(Array.from({ length: side }, (_, r) => r * side + c));
   }
-  // Check diagonals
-  // 0, 6, 12, 18, 24
-  // 4, 8, 12, 16, 20
-  bingos.push([
-    0,
-    (side + 1) * 1,
-    (side + 1) * 2,
-    (side + 1) * 3,
-    (side + 1) * 4,
-  ]);
-  bingos.push([
-    (side - 1) * 1,
-    (side - 1) * 2,
-    (side - 1) * 3,
-    (side - 1) * 4,
-    (side - 1) * 5,
-  ]);
-  return bingos.filter((bingo) => bingo.every((i) => toggles[i])).length;
+  lines.push(Array.from({ length: side }, (_, i) => i * (side + 1)));
+  lines.push(Array.from({ length: side }, (_, i) => (i + 1) * (side - 1)));
+  return lines.filter((line) => line.every((i) => toggles[i])).length;
 }
 
-async function getWakeLock() {
-  try {
-    const wakeLock = await navigator.wakeLock.request("screen");
-    console.log(wakeLock);
-  } catch (err: any) {
-    // the wake lock request fails - usually system related, such being low on battery
-    console.log(`${err.name}, ${err.message}`);
+function shuffle<T>(array: T[]): T[] {
+  const a = [...array];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
   }
+  return a;
 }
-getWakeLock();
+
+// FIX: wake lock is released when the tab is hidden, so re-acquire on return.
+// Also no longer runs at import time / crashes on unsupported browsers.
+function useWakeLock() {
+  useEffect(() => {
+    let lock: any = null;
+    const request = async () => {
+      try {
+        if ("wakeLock" in navigator) {
+          lock = await (navigator as any).wakeLock.request("screen");
+        }
+      } catch (err: any) {
+        console.log(`${err.name}, ${err.message}`);
+      }
+    };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") request();
+    };
+    request();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      lock?.release?.().catch(() => {});
+    };
+  }, []);
+}
+
+function itemsForSet(values: any[][], setIndex: number): string[] {
+  return values
+    .slice(1) // FIX: skip the header row so set names never appear as squares
+    .filter((row) => Number(row[setIndex + 1]))
+    .map((row) => row[0])
+    .filter(Boolean);
+}
 
 function App() {
-  const [data, setData] = useState<{ values: any[]} | null>(null);
-  const [items, setItems] = useState<any[]>([]);
-  const [board, setBoard] = useState<any[]>([]);
-  const [sets, setSets] = useState([]);
-  const [index, setIndex] = useState(0);
-  const [toggles, setToggles] = useState(new Array(GRID_SIZE).fill(false));
+  const [values, setValues] = useState<any[][] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [items, setItems] = useState<string[]>([]);
+  const [board, setBoard] = useState<number[]>([]);
+  const [sets, setSets] = useState<string[]>([]);
+  const [index, setIndex] = useState<number>(0);
+  const [toggles, setToggles] = useState<boolean[]>(
+    new Array(GRID_SIZE).fill(false)
+  );
   const [showFireworks, setShowFireworks] = useState(false);
+  const fireworkTimer = useRef<number | undefined>(undefined);
 
-  const serialize = useCallback(() => {
-    const str = JSON.stringify({ selected: board, toggles, index: index });
-    window.localStorage.setItem("bachelorbingo-state", str);
-  }, [board, toggles, index]);
+  useWakeLock();
 
-  const deserialize = useCallback(() => {
-    const str = window.localStorage.getItem("bachelorbingo-state");
-    if (str) {
-      try {
-        const obj = JSON.parse(str);
+  const load = useCallback(async () => {
+    setError(null);
+    try {
+      const resp = await fetch(SHEET_URL);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      if (!data?.values?.length) throw new Error("Empty sheet");
+      setValues(data.values);
+      setSets(data.values[0].filter(Boolean));
+    } catch (e) {
+      console.warn(e);
+      setError("Couldn't load squares. Check your connection and try again.");
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  useEffect(() => () => window.clearTimeout(fireworkTimer.current), []);
+
+  const resetCard = useCallback(
+    (ind: number, vals: any[][]) => {
+      const newItems = itemsForSet(vals, ind);
+      setItems(newItems);
+      setIndex(ind);
+      const picked = shuffle(newItems.map((_, i) => i)).slice(0, GRID_SIZE - 1);
+      // FIX: pad if a set has fewer than 24 squares so the grid never breaks
+      while (picked.length < GRID_SIZE - 1) {
+        picked.push(-2);
+      }
+      picked.splice(CENTER, 0, -1); // The Bachelor goes in the middle
+      setBoard(picked);
+      const t = new Array(GRID_SIZE).fill(false);
+      t[CENTER] = true;
+      setToggles(t);
+      setShowFireworks(false);
+    },
+    []
+  );
+
+  // Restore saved game (or start fresh) once the sheet has loaded
+  useEffect(() => {
+    if (!values) return;
+    try {
+      const obj = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+      const restoredItems = itemsForSet(values, obj?.index ?? 0);
+      const valid =
+        obj &&
+        Array.isArray(obj.selected) &&
+        obj.selected.length === GRID_SIZE &&
+        Array.isArray(obj.toggles) &&
+        obj.toggles.length === GRID_SIZE &&
+        // FIX: ignore saved boards that point past the (possibly edited) sheet
+        obj.selected.every((n: number) => n < restoredItems.length);
+      if (valid) {
         setBoard(obj.selected);
         setToggles(obj.toggles);
         setIndex(obj.index);
-        const items = data?.values
-          .filter((d) => Number(d[obj.index + 1])) // Premiere
-          .map((d) => d[0]) ?? [];
-        setItems(items);
-        return true;
-      } catch (e) {
-        console.warn(e);
+        setItems(restoredItems);
+        return;
       }
+    } catch (e) {
+      console.warn(e);
     }
-    return false;
-  }, [setBoard, setToggles, setItems, setIndex, data]);
+    resetCard(0, values);
+  }, [values, resetCard]);
 
-  const toggle = useCallback(
-    (i: number) => {
-      const newToggles = [...toggles];
-      newToggles[i] = !toggles[i];
-      setToggles(newToggles);
-      // console.log(newToggles, i);
-      if (countBingo(newToggles) > countBingo(toggles)) {
-        setShowFireworks(true);
-        setTimeout(() => setShowFireworks(false), 4000);
-      }
-      if (navigator.vibrate) {
-        navigator.vibrate(100);
-      }
-    },
-    [toggles, setToggles]
-  );
-
-  const resetCard = useCallback(
-    (index: number) => {
-      console.log("resetCard");
-      const items = data?.values
-        .filter((d) => Number(d[index + 1]))
-        .map((d) => d[0]) ?? [];
-      setItems(items);
-      setIndex(index);
-      // Shuffle the list and select 24 items
-      const newSelected = shuffle(items.map((_item, i) => i)).slice(
-        0,
-        GRID_SIZE - 1
+  useEffect(() => {
+    if (!board.length) return;
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ selected: board, toggles, index })
       );
-      // Put The Bachelor in the middle
-      newSelected.splice(Math.floor(GRID_SIZE / 2), 0, -1);
-      setBoard(newSelected);
-      const newToggles = new Array(GRID_SIZE).fill(false);
-      newToggles[Math.floor(GRID_SIZE / 2)] = true;
-      setToggles(newToggles);
-      setShowFireworks(false);
-    },
-    [data, setBoard, setToggles, setShowFireworks]
-  );
+    } catch (e) {
+      // storage full / private mode — game still works
+      console.warn(e);
+    }
+  }, [board, toggles, index]);
 
-  /* eslint-disable */
-  useEffect(() => {
-    const fetchData = async () => {
-      const resp = await fetch(
-        "https://googlesheet.howardzchung.workers.dev/?url=https://sheets.googleapis.com/v4/spreadsheets/1-B1WtsDnlxpx72KJmqmjKtSxqfVAP37AeB-tIFWU8-o/values/Sheet1"
+  const toggle = (i: number) => {
+    if (board[i] === -1 || board[i] === -2) return;
+    const next = [...toggles];
+    next[i] = !next[i];
+    setToggles(next);
+    if (countBingo(next) > countBingo(toggles)) {
+      setShowFireworks(true);
+      window.clearTimeout(fireworkTimer.current);
+      fireworkTimer.current = window.setTimeout(
+        () => setShowFireworks(false),
+        4000
       );
-      const data = await resp.json();
-      setData(data);
-      setSets(data.values[0].filter(Boolean));
-    };
-    fetchData();
-  }, []);
-  useEffect(() => {
-    if (!data) {
-      return;
     }
-    const saved = deserialize();
-    console.log(saved);
-    if (!saved) {
-      resetCard(0);
-    }
-  }, [data]);
-  /* eslint-enable */
+    navigator.vibrate?.(next[i] ? 40 : 15);
+  };
 
-  useEffect(() => {
-    if (board.length) {
-      serialize();
-    }
-  }, [board, toggles, serialize]);
+  const bingos = countBingo(toggles);
 
   return (
     <div className="App">
-      <h1>Bachelor(ette) Bingo</h1>
-      <div className="bingoCard">
-        {board.map((itemIndex, i) => {
-          if (itemIndex === -1) {
-            return (
-              <img
-                key={itemIndex}
-                src="./jesse.jpg"
-                alt="The Bachelor(ette)"
-                style={{ width: "100%", height: "100%" }}
-              />
-            );
-          }
-          return (
-            <div
-              className={toggles[i] ? "selected cardItem" : "cardItem"}
-              key={i}
-              onClick={() => toggle(i)}
-            >
-              {items[itemIndex]}
-            </div>
-          );
-        })}
-      </div>
-      <div
-        style={{
-          display: "flex",
-          gap: "4px",
-          marginTop: "12px",
-          flexWrap: "wrap",
-        }}
-      >
-        {sets.map((set, i) => (
-          <button key={set} onClick={() => {
-            if (confirm("Do you really want to reset?")) {
-              resetCard(i);
+      <header className="header">
+        <h1>Bachelor(ette) Bingo</h1>
+        <p className="count" aria-live="polite">
+          {bingos === 0 ? "Tap a square when it happens" : `${bingos} bingo${bingos > 1 ? "s" : ""}!`}
+        </p>
+      </header>
+
+      {error && (
+        <div className="notice" role="alert">
+          <p>{error}</p>
+          <button onClick={load}>Try again</button>
+        </div>
+      )}
+
+      {!error && !board.length && <p className="notice">Loading squares…</p>}
+
+      {board.length > 0 && (
+        <div className="bingoCard">
+          {board.map((itemIndex, i) => {
+            if (itemIndex === -1) {
+              return (
+                <div key={i} className="cardItem free selected">
+                  <img src="./jesse.jpg" alt="The Bachelor(ette)" />
+                </div>
+              );
             }
-          }}>
-            {set}
-          </button>
-        ))}
-      </div>
+            if (itemIndex === -2) {
+              return <div key={i} className="cardItem empty" />;
+            }
+            return (
+              <button
+                type="button"
+                className={toggles[i] ? "cardItem selected" : "cardItem"}
+                key={i}
+                aria-pressed={toggles[i]}
+                onClick={() => toggle(i)}
+              >
+                <span>{items[itemIndex]}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {sets.length > 0 && (
+        <nav className="sets" aria-label="Choose a new card">
+          <p className="setsLabel">New card</p>
+          <div className="setsList">
+            {sets.map((set, i) => (
+              <button
+                key={set}
+                className={i === index ? "active" : ""}
+                onClick={() => {
+                  if (values && confirm("Start a new card? Your current progress will be lost.")) {
+                    resetCard(i, values);
+                  }
+                }}
+              >
+                {set}
+              </button>
+            ))}
+          </div>
+        </nav>
+      )}
+
       {showFireworks && (
-        <div>
-          <div className="firework"></div>
-          <div className="firework"></div>
-          <div className="firework"></div>
+        <div className="fireworks" aria-hidden="true">
+          <div className="firework" />
+          <div className="firework" />
+          <div className="firework" />
+          <div className="bingoBanner">BINGO!</div>
         </div>
       )}
     </div>
@@ -208,23 +259,3 @@ function App() {
 }
 
 export default App;
-
-function shuffle(array: any[]) {
-  let currentIndex = array.length,
-    randomIndex;
-
-  // While there remain elements to shuffle.
-  while (currentIndex !== 0) {
-    // Pick a remaining element.
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ];
-  }
-
-  return array;
-}
