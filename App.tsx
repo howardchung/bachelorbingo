@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import "./App.css";
 
 const GRID_SIZE = 25;
@@ -55,6 +61,58 @@ function useWakeLock() {
       lock?.release?.().catch(() => {});
     };
   }, []);
+}
+
+const MIN_FONT = 7;
+const MAX_FONT = 18;
+
+// Shrinks its text until it fits the square, so long squares stay readable
+// without overflowing. Re-fits when the card is resized or fonts finish loading.
+function FitText({ text }: { text: string }) {
+  const boxRef = useRef<HTMLSpanElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+
+  const fit = useCallback(() => {
+    const box = boxRef.current;
+    const el = textRef.current;
+    if (!box || !el || !box.clientWidth) return;
+    el.style.overflowWrap = "normal"; // long words must shrink, not break
+    const fits = (size: number) => {
+      el.style.fontSize = `${size}px`;
+      return el.scrollWidth <= el.clientWidth && el.offsetHeight <= box.clientHeight;
+    };
+    let lo = MIN_FONT;
+    let hi = Math.min(MAX_FONT, Math.max(MIN_FONT, box.clientHeight / 2.4));
+    if (fits(hi)) return;
+    while (hi - lo > 0.5) {
+      const mid = (lo + hi) / 2;
+      if (fits(mid)) lo = mid;
+      else hi = mid;
+    }
+    el.style.fontSize = `${lo}px`;
+    if (!fits(lo)) el.style.overflowWrap = "anywhere"; // last resort at min size
+  }, []);
+
+  useLayoutEffect(() => {
+    fit();
+  }, [text, fit]);
+
+  useEffect(() => {
+    const box = boxRef.current;
+    if (!box) return;
+    const ro = new ResizeObserver(() => fit());
+    ro.observe(box);
+    document.fonts?.ready.then(fit);
+    return () => ro.disconnect();
+  }, [fit]);
+
+  return (
+    <span className="fitBox" ref={boxRef}>
+      <span className="fitText" ref={textRef}>
+        {text}
+      </span>
+    </span>
+  );
 }
 
 function itemsForSet(values: any[][], setIndex: number): string[] {
@@ -218,7 +276,7 @@ function App() {
                 aria-pressed={toggles[i]}
                 onClick={() => toggle(i)}
               >
-                <span>{items[itemIndex]}</span>
+                <FitText text={items[itemIndex]} />
               </button>
             );
           })}

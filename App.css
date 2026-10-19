@@ -66,7 +66,6 @@ h1 {
   justify-content: center;
   text-align: center;
   font: inherit;
-  font-size: clamp(0.56rem, 2.6vw, 0.82rem);
   font-weight: 600;
   line-height: 1.15;
   color: var(--ink);
@@ -83,7 +82,14 @@ h1 {
   transition: transform 0.12s ease, background 0.15s ease, color 0.15s ease;
 }
 
-.cardItem span { display: block; max-height: 100%; overflow: hidden; }
+.fitBox {
+  position: absolute;
+  inset: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fitText { display: block; width: 100%; font-size: 12px; }
 .cardItem:active { transform: scale(0.94); }
 .cardItem:focus-visible,
 .sets button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
@@ -93,16 +99,8 @@ h1 {
   background: linear-gradient(145deg, var(--rose), var(--rose-deep));
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35);
 }
-.cardItem.selected::after {
-  content: "♥";
-  position: absolute;
-  top: 2px; right: 4px;
-  font-size: 0.7em;
-  opacity: 0.8;
-}
 
 .cardItem.free { padding: 0; cursor: default; background: var(--gold); }
-.cardItem.free::after { content: none; }
 .cardItem.free img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .cardItem.empty { visibility: hidden; }
 
@@ -182,5 +180,5 @@ h1 {
 }
 
 @media (min-width: 600px) {
-  .cardItem { font-size: 0.9rem; padding: 6px; }
+  .fitBox { inset: 6px; }
 }
